@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wycena Inwestycji - HOME WALL & MORE</title>
+    <style>
+        :root { --b: #000; --w: #fff; --g: #f4f4f4; --accent: #2ecc71; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #eee; margin: 0; padding: 10px; color: #1a1a1a; -webkit-font-smoothing: antialiased; }
+       
+        @media print {
+            @page { margin: 0; }
+            body { margin: 1.2cm; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            #sheet { border: none !important; margin: 0 !important; width: 100% !important; box-shadow: none !important; display: block !important; }
+            tr { page-break-inside: avoid; }
+        }
+
+        .no-print { max-width: 600px; margin: 0 auto 20px auto; background: var(--w); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid var(--b); }
+        h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #555; margin: 20px 0 10px 0; border-left: 3px solid #000; padding-left: 8px; }
+        
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; font-family: inherit; -webkit-appearance: none; background-color: #fff; }
+       
+        .vat-selector { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+        .vat-btn { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; font-weight: bold; -webkit-appearance: none; text-align: center; min-width: 30%; }
+        .vat-btn.active { background: var(--b); color: #fff; border-color: var(--b); }
+
+        .scroll-list { background: var(--g); padding: 5px; border-radius: 8px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; -webkit-overflow-scrolling: touch; }
+        
+        .category-title { background: #e0e0e0; padding: 8px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-top: 5px; border-radius: 4px; color: #333; }
+        .item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; margin: 0; }
+        .item:last-child { border-bottom: none; }
+        .item input[type="checkbox"] { width: 24px; height: 24px; margin-right: 15px; accent-color: var(--b); flex-shrink: 0; }
+        .item span { font-size: 14px; }
+
+        .qty-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 5px solid #000; }
+        .qty-card b { display: block; margin-bottom: 10px; font-size: 13px; }
+        .row { display: flex; gap: 10px; }
+        .row div { flex: 1; }
+        .row label { font-size: 10px; text-transform: uppercase; color: #777; font-weight: bold; display: block; margin-bottom: 4px; }
+
+        .btn { background: #000; color: #fff; border: none; width: 100%; padding: 18px; font-weight: bold; font-size: 14px; letter-spacing: 2px; border-radius: 6px; margin-top: 20px; text-transform: uppercase; cursor: pointer; -webkit-appearance: none; text-align: center; }
+
+        #sheet { width: 100%; max-width: 800px; margin: 20px auto; background: var(--w); padding: 40px 30px; box-sizing: border-box; border: 1px solid #ddd; }
+        .header-txt { text-align: center; margin-bottom: 25px; }
+        .header-txt h1 { font-size: 26px; letter-spacing: 5px; margin: 0; text-transform: uppercase; font-weight: 900; }
+        .header-txt p { font-size: 11px; letter-spacing: 2px; margin: 5px 0 0 0; color: #555; }
+        .line { width: 100%; border-bottom: 2px solid #000; margin: 15px 0; }
+       
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #000; color: #fff; font-size: 9px; text-transform: uppercase; padding: 10px 2px; border: 1px solid #000; }
+        td { border: 1px solid #eee; padding: 10px 4px; font-size: 11px; text-align: center; }
+       
+        .sum-box { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-end; }
+        .total-row { background: #000; color: #fff; padding: 15px; width: 100%; max-width: 350px; display: flex; justify-content: space-between; align-items: center; }
+
+        .disclaimer { margin-top: 30px; font-size: 9px; color: #777; text-align: left; line-height: 1.5; border-top: 1px solid #eee; padding-top: 15px; }
+        .notes-box { margin-top: 20px; border: 1px solid #eee; padding: 10px; font-size: 11px; min-height: 40px; white-space: pre-wrap; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <div style="text-align: center; font-weight: 900; letter-spacing: 2px;">🏠 HOME WALL & MORE - SYSTEM</div>
+   
+    <h2>1. Dane Inwestycji</h2>
+    <input type="text" id="c_name" placeholder="Imię i Nazwisko Klienta" oninput="upd()" autocomplete="off">
+    <input type="text" id="c_city" placeholder="Lokalizacja Inwestycji" oninput="upd()" autocomplete="off">
+   
+    <div class="vat-selector">
+        <button type="button" class="vat-btn" id="btn0" onclick="setVat(1.00, this, 'ZW / Ryczałt')">0% (Ryczałt)</button>
+        <button type="button" class="vat-btn active" id="btn8" onclick="setVat(1.08, this, '8%')">8% (Robocizna)</button>
+        <button type="button" class="vat-btn" id="btn23" onclick="setVat(1.23, this, '23%')">23% (Firma)</button>
+    </div>
+
+    <h2>2. Wybór Zakresu Prac</h2>
+    <div class="scroll-list">
+        <div class="category-title">Tynki i Wylewki</div>
+        <label class="item"><input type="checkbox" data-n="Tynki maszynowe (Robocizna)" data-p="62" data-u="m2" onchange="build()"> <span>Tynki maszynowe Premium</span></label>
+        <label class="item"><input type="checkbox" data-n="Wylewka mixokretem + rozłożenie izolacji (Robocizna)" data-p="52" data-u="m2" onchange="build()"> <span>Wylewki + Styropian (Robocizna)</span></label>
+        <label class="item"><input type="checkbox" data-n="Wylewka samopoziomująca (Robocizna)" data-p="35" data-u="m2" onchange="build()"> <span>Wylewka samopoziomująca</span></label>
+
+        <div class="category-title">Elektryka (Nowa sekcja)</div>
+        <label class="item"><input type="checkbox" data-n="Punkt elektryczny (gniazdo/włącznik/wypust)" data-p="110" data-u="szt" onchange="build()"> <span>Punkt elektryczny (robocizna)</span></label>
+        <label class="item"><input type="checkbox" data-n="Montaż i podłączenie rozdzielnicy (robocizna)" data-p="1200" data-u="szt" onchange="build()"> <span>Montaż rozdzielnicy</span></label>
+        <label class="item"><input type="checkbox" data-n="Biały montaż elektryczny (gniazdka/lampy)" data-p="45" data-u="szt" onchange="build()"> <span>Montaż osprzętu (gniazdka/lampy)</span></label>
+        <label class="item"><input type="checkbox" data-n="Układanie kabla w korytach/peszlach" data-p="12" data-u="mb" onchange="build()"> <span>Układanie kabla (mb)</span></label>
+        <label class="item"><input type="checkbox" data-n="Wykucie bruzdy i osadzenie puszki" data-p="40" data-u="szt" onchange="build()"> <span>Bruzda + osadzenie puszki</span></label>
+
+        <div class="category-title">WOD-KAN i C.O.</div>
+        <label class="item"><input type="checkbox" data-n="Punkt wod-kan (do 3m od pionu)" data-p="350" data-u="szt" onchange="build()"> <span>Punkt wod-kan (standard)</span></label>
+        <label class="item"><input type="checkbox" data-n="Dopłata za mb podejścia wod-kan (>3m)" data-p="45" data-u="mb" onchange="build()"> <span>Dopłata za odległość (mb)</span></label>
+        <label class="item"><input type="checkbox" data-n="Ogrzewanie podłogowe - układanie rur (Robocizna)" data-p="85" data-u="m2" onchange="build()"> <span>Ogrzewanie podłogowe (m2)</span></label>
+        <label class="item"><input type="checkbox" data-n="Montaż stelaża podtynkowego WC" data-p="450" data-u="szt" onchange="build()"> <span>Montaż stelaża WC</span></label>
+        <label class="item"><input type="checkbox" data-n="Próba szczelności instalacji" data-p="500" data-u="kpl" onchange="build()"> <span>Próba szczelności</span></label>
+
+        <div class="category-title">Zabudowy G-K i Poddasza</div>
+        <label class="item"><input type="checkbox" data-n="Zabudowa poddasza G-K z ociepleniem (Robocizna)" data-p="180" data-u="m2" onchange="build()"> <span>Zabudowa poddasza (Kompleks)</span></label>
+        <label class="item"><input type="checkbox" data-n="Sufit podwieszany G-K prosty (Robocizna)" data-p="140" data-u="m2" onchange="build()"> <span>Sufit podwieszany G-K</span></label>
+        <label class="item"><input type="checkbox" data-n="Ścianka działowa G-K (Robocizna)" data-p="130" data-u="m2" onchange="build()"> <span>Ścianka działowa G-K</span></label>
+
+        <div class="category-title">Prace Wykończeniowe</div>
+        <label class="item"><input type="checkbox" data-n="Gładzie gipsowe Premium (Robocizna)" data-p="60" data-u="m2" onchange="build()"> <span>Gładzie (szlifowanie bezpyłowe)</span></label>
+        <label class="item"><input type="checkbox" data-n="Malowanie natryskowe/wałkiem (Robocizna)" data-p="35" data-u="m2" onchange="build()"> <span>Malowanie kompleksowe</span></label>
+        <label class="item"><input type="checkbox" data-n="Układanie płytek/gresu (Robocizna)" data-p="180" data-u="m2" onchange="build()"> <span>Płytki (standard)</span></label>
+        <label class="item"><input type="checkbox" data-n="Nadzór techniczny i koordynacja GW" data-p="5000" data-u="kpl" onchange="build()"> <span>Zarządzanie Inwestycją (GW)</span></label>
+    </div>
+
+    <div id="input-fields"></div>
+
+    <h2>4. Uwagi / Warunki</h2>
+    <textarea id="c_notes" rows="4" placeholder="Np. Oferta nie zawiera materiału. Termin rozpoczęcia: ..." oninput="upd()"></textarea>
+
+    <button type="button" class="btn" onclick="window.print()">GENERUJ PDF</button>
+</div>
+
+<div id="sheet">
+    <div class="header-txt">
+        <h1>HOME WALL & MORE</h1>
+        <p>GENERALNE WYKONAWSTWO • NADZÓR TECHNICZNY • WYKOŃCZENIA</p>
+    </div>
+    <div class="line"></div>
+    <div style="text-align:center; text-transform:uppercase; font-weight:900; letter-spacing:3px;">Kosztorys Ofertowy</div>
+    <div id="date_val" style="text-align:center; font-size:10px; margin-top:5px;"></div>
+    <div class="line"></div>
+
+    <div style="font-size: 11px; margin-bottom: 20px;">
+        <strong>INWESTOR:</strong> <span id="out_n">..........</span><br>
+        <strong>LOKALIZACJA:</strong> <span id="out_c">..........</span><br>
+        <strong>SYSTEM ROZLICZENIA:</strong> <span id="out_v">8% (Robocizna)</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:45%">ZAKRES PRAC</th>
+                <th>CENA JEDN.</th>
+                <th>ILOŚĆ</th>
+                <th>WARTOŚĆ</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+
+    <div id="out_notes" class="notes-box" style="display:none;"></div>
+
+    <div class="sum-box">
+        <div style="color:#888; font-size:12px; margin-bottom:5px;">Netto: <span id="res_n">0.00 zł</span></div>
+        <div class="total-row">
+            <span style="font-weight:bold; font-size:12px;">SUMA DO ZAPŁATY:</span>
+            <span id="res_t" style="font-weight:900; font-size:20px;">0.00 zł</span>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <strong>WAŻNE INFORMACJE:</strong><br>
+        1. Powyższe ceny dotyczą <strong>WYŁĄCZNIE ROBOCIZNY</strong>. Koszt materiałów pokrywa Inwestor.<br>
+        2. Wycena ma charakter szacunkowy na podstawie projektu. Dokładny obmiar nastąpi na budowie.<br>
+        3. Odległość punktów wod-kan powyżej 3 metrów od pionu rozliczana jest dodatkowo wg. pozycji mb w kosztorysie.<br>
+        4. Termin ważności oferty: 14 dni.
+    </div>
+</div>
+
+<script>
+    let currentVat = 1.08;
+    let vatTextOut = "8% (Robocizna)";
+
+    function setVat(val, btn, textVal) {
+        currentVat = val;
+        vatTextOut = textVal;
+        document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('out_v').innerText = vatTextOut;
+        upd();
+    }
+
+    function build() {
+        const wrap = document.getElementById('input-fields');
+        const active = document.querySelectorAll('.item input:checked');
+        const qStore = {}; document.querySelectorAll('.v-q').forEach(i => qStore[i.dataset.id] = i.value);
+        const pStore = {}; document.querySelectorAll('.v-p').forEach(i => pStore[i.dataset.id] = i.value);
+
+        wrap.innerHTML = '';
+        if(active.length > 0) wrap.innerHTML = '<h2>3. Ilości i Ceny</h2>';
+        
+        active.forEach(box => {
+            const n = box.dataset.n;
+            wrap.innerHTML += `
+                <div class="qty-card">
+                    <b>${n}</b>
+                    <div class="row">
+                        <div><label>Ilość (${box.dataset.u})</label><input type="number" step="any" class="v-q" data-id="${n}" data-u="${box.dataset.u}" value="${qStore[n] || ''}" oninput="upd()"></div>
+                        <div><label>Cena zł</label><input type="number" step="any" class="v-p" data-id="${n}" value="${pStore[n] || box.dataset.p}" oninput="upd()"></div>
+                    </div>
+                </div>`;
+        });
+        upd();
+    }
+
+    function upd() {
+        document.getElementById('out_n').innerText = document.getElementById('c_name').value || "..........";
+        document.getElementById('out_c').innerText = document.getElementById('c_city').value || "..........";
+        document.getElementById('date_val').innerText = "Sporządzono: " + new Date().toLocaleDateString('pl-PL');
+       
+        const notes = document.getElementById('c_notes').value;
+        const notesOut = document.getElementById('out_notes');
+        if(notes) { notesOut.style.display = 'block'; notesOut.innerText = "UWAGI I WARUNKI REALIZACJI:\n" + notes; }
+        else { notesOut.style.display = 'none'; }
+
+        const tb = document.getElementById('tbody');
+        const qs = document.querySelectorAll('.v-q');
+        const ps = document.querySelectorAll('.v-p');
+        tb.innerHTML = '';
+        let totalNet = 0;
+
+        qs.forEach((q, i) => {
+            const qty = parseFloat(q.value) || 0;
+            const prc = parseFloat(ps[i].value) || 0;
+            const net = qty * prc;
+            totalNet += net;
+            tb.innerHTML += `<tr><td style="text-align:left; font-weight:bold">${q.dataset.id}</td><td>${prc.toFixed(2)} zł</td><td>${qty} ${q.dataset.u}</td><td>${net.toFixed(2)} zł</td></tr>`;
+        });
+
+        document.getElementById('res_n').innerText = totalNet.toFixed(2) + " zł";
+        document.getElementById('res_t').innerText = (totalNet * currentVat).toFixed(2) + " zł";
+    }
+</script>
+</body>
+</html>

@@ -41,6 +41,12 @@
         .row div { flex: 1; }
         .row label { font-size: 10px; text-transform: uppercase; color: #777; font-weight: bold; display: block; margin-bottom: 4px; }
 
+        .discount-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 5px solid #ff9800; }
+        .discount-card b { display: block; margin-bottom: 10px; font-size: 13px; color: #ff9800; font-weight: bold; }
+        .discount-card label { font-size: 10px; text-transform: uppercase; color: #777; font-weight: bold; display: block; margin-bottom: 4px; }
+        .discount-card input { width: 100%; }
+        .discount-card-helper { font-size: 11px; color: #999; margin-top: 8px; }
+
         .btn { background: #000; color: #fff; border: none; width: 100%; padding: 18px; font-weight: bold; font-size: 14px; letter-spacing: 2px; border-radius: 6px; margin-top: 20px; text-transform: uppercase; cursor: pointer; -webkit-appearance: none; text-align: center; }
 
         #sheet { width: 100%; max-width: 800px; margin: 20px auto; background: var(--w); padding: 40px 30px; box-sizing: border-box; border: 1px solid #ddd; }
@@ -55,8 +61,11 @@
         
         .sum-box { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-end; }
         .total-row { background: #000; color: #fff; padding: 15px; width: 100%; max-width: 350px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .discount-section { margin-top: 15px; padding: 10px 0; border-top: 1px solid #ddd; width: 100%; max-width: 350px; margin-left: auto; }
+        .discount-line { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin: 5px 0; padding: 0 15px; }
+        .discount-amount { color: #d32f2f; font-weight: bold; }
 
-        .disclaimer { margin-top: 30px; font-size: 9px; color: #777; text-align: left; line-height: 1.5; border-top: 1px solid #eee; padding-top: 15px; }
         .notes-box { margin-top: 20px; border: 1px solid #eee; padding: 10px; font-size: 11px; min-height: 40px; white-space: pre-wrap; text-align: left; }
     </style>
 </head>
@@ -125,6 +134,13 @@
 
     <div id="input-fields"></div>
 
+    <div class="discount-card">
+        <b>💰 Rabat dla klienta</b>
+        <label>Procent rabatu (%)</label>
+        <input type="number" id="c_discount" min="0" max="100" step="0.01" placeholder="0" oninput="upd()" autocomplete="off">
+        <div class="discount-card-helper">Zostaw puste lub 0 aby ukryć w kosztorysie</div>
+    </div>
+
     <h2>4. Uwagi / Warunki</h2>
     <textarea id="c_notes" rows="4" placeholder="Np. Oferta nie zawiera materiału. Termin rozpoczęcia: ..." oninput="upd()"></textarea>
 
@@ -137,7 +153,7 @@
         <p>GENERALNE WYKONAWSTWO • NADZÓR TECHNICZNY • WYKOŃCZENIA</p>
     </div>
     <div class="line"></div>
-    <div style="text-align:center; text-transform:uppercase; font-weight:900; letter-spacing:3px;">Kosztorys Ofertowy</div>
+    <div style="text-align:center; text-transform:uppercase; font-weight:900; letter-spacing:3px;">Wycena Realizacji Inwestycji</div>
     <div id="date_val" style="text-align:center; font-size:10px; margin-top:5px;"></div>
     <div class="line"></div>
 
@@ -163,17 +179,15 @@
 
     <div class="sum-box">
         <div style="color:#888; font-size:12px; margin-bottom:5px;">Netto: <span id="res_n">0.00 zł</span></div>
+        <div id="discount_section" class="discount-section" style="display:none;">
+            <div class="discount-line">Rabat <span id="discount_percent">0</span>%: <span class="discount-amount" id="res_discount">-0.00 zł</span></div>
+            <div class="discount-line">Netto po rabacie: <span id="res_net_after">0.00 zł</span></div>
+        </div>
+        <div style="color:#888; font-size:12px; margin-bottom:5px;" id="res_vat_line">VAT: <span id="res_vat">0.00 zł</span></div>
         <div class="total-row">
             <span style="font-weight:bold; font-size:12px;">SUMA DO ZAPŁATY:</span>
             <span id="res_t" style="font-weight:900; font-size:20px;">0.00 zł</span>
         </div>
-    </div>
-
-    <div class="disclaimer">
-        <strong>WAŻNE INFORMACJE:</strong><br>
-        1. Ceny dotyczące robocizny są cenami szacunkowymi. Ostateczny koszt zależy od stopnia skomplikowania prac.<br>
-        2. Wycena ma charakter szacunkowy na podstawie projektu. Dokładny obmiar nastąpi na budowie.<br>
-        3. Termin ważności oferty: 14 dni.
     </div>
 </div>
 
@@ -239,8 +253,35 @@
             }
         });
 
+        const discountPercent = parseFloat(document.getElementById('c_discount').value) || 0;
+        const discountAmount = (totalNet * discountPercent) / 100;
+        const netAfterDiscount = totalNet - discountAmount;
+        const totalBrutto = netAfterDiscount * currentVat;
+        const vatAmount = totalBrutto - netAfterDiscount;
+
         document.getElementById('res_n').innerText = totalNet.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
-        document.getElementById('res_t').innerText = (totalNet * currentVat).toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
+        
+        // Discount section - pokaż tylko jeśli rabat > 0
+        const discountSection = document.getElementById('discount_section');
+        if (discountPercent > 0) {
+            discountSection.style.display = 'block';
+            document.getElementById('discount_percent').innerText = discountPercent.toFixed(2);
+            document.getElementById('res_discount').innerText = '-' + discountAmount.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
+            document.getElementById('res_net_after').innerText = netAfterDiscount.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
+        } else {
+            discountSection.style.display = 'none';
+        }
+
+        // VAT line
+        const resVatLine = document.getElementById('res_vat_line');
+        if (currentVat === 1.00) {
+            resVatLine.style.display = 'none';
+        } else {
+            resVatLine.style.display = 'block';
+            document.getElementById('res_vat').innerText = vatAmount.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
+        }
+
+        document.getElementById('res_t').innerText = totalBrutto.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
     }
 </script>
 </body>

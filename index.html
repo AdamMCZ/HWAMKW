@@ -339,29 +339,28 @@
             total: totalBrutto.toFixed(2)
         };
 
-        // Wyślij do Google Sheet
+        // Pokaż komunikat sukcesu od razu
+        alertBox.className = 'alert success';
+        alertBox.innerText = '✅ Przygotowuję PDF do wydruku...';
+
+        // Otwórz print NATYCHMIAST
+        setTimeout(() => {
+            window.print();
+            btn.disabled = false;
+            btn.innerText = 'GENERUJ PDF';
+        }, 500);
+
+        // Wysyłaj do Google Sheet w tle (nie czekaj na odpowiedź)
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(dataToSend),
             mode: 'no-cors'
         })
         .then(() => {
-            alertBox.className = 'alert success';
-            alertBox.innerText = '✅ Wycena wysłana! Kliknij print aby wygenerować PDF.';
-            btn.disabled = false;
-            btn.innerText = 'GENERUJ PDF';
-            
-            // Auto-print po 2 sekundach
-            setTimeout(() => {
-                window.print();
-            }, 2000);
+            console.log('✅ Dane wysłane do Google Sheet');
         })
         .catch(error => {
-            alertBox.className = 'alert error';
-            alertBox.innerText = '❌ Błąd wysyłania. Spróbuj jeszcze raz.';
-            btn.disabled = false;
-            btn.innerText = 'GENERUJ PDF';
-            console.error('Błąd:', error);
+            console.error('Błąd wysyłania:', error);
         });
     }
 </script>

@@ -48,7 +48,6 @@
         .discount-card-helper { font-size: 11px; color: #999; margin-top: 8px; }
 
         .btn { background: #000; color: #fff; border: none; width: 100%; padding: 18px; font-weight: bold; font-size: 14px; letter-spacing: 2px; border-radius: 6px; margin-top: 20px; text-transform: uppercase; cursor: pointer; -webkit-appearance: none; text-align: center; }
-        .btn:disabled { background: #666; cursor: not-allowed; }
 
         #sheet { width: 100%; max-width: 800px; margin: 20px auto; background: var(--w); padding: 40px 30px; box-sizing: border-box; border: 1px solid #ddd; }
         .header-txt { text-align: center; margin-bottom: 25px; }
@@ -68,18 +67,12 @@
         .discount-amount { color: #d32f2f; font-weight: bold; }
 
         .notes-box { margin-top: 20px; border: 1px solid #eee; padding: 10px; font-size: 11px; min-height: 40px; white-space: pre-wrap; text-align: left; }
-
-        .alert { padding: 12px; margin: 10px 0; border-radius: 6px; font-size: 12px; text-align: center; display: none; }
-        .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
-        .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
     </style>
 </head>
 <body>
 
 <div class="no-print">
     <div style="text-align: center; font-weight: 900; letter-spacing: 2px;">🏠 HOME WALL & MORE - SYSTEM</div>
-    
-    <div id="alertBox" class="alert"></div>
     
     <h2>1. Dane Inwestycji</h2>
     <input type="text" id="c_name" placeholder="Imię i Nazwisko Klienta" oninput="upd()" autocomplete="off">
@@ -151,7 +144,7 @@
     <h2>4. Uwagi / Warunki</h2>
     <textarea id="c_notes" rows="4" placeholder="Np. Oferta nie zawiera materiału. Termin rozpoczęcia: ..." oninput="upd()"></textarea>
 
-    <button type="button" id="submitBtn" class="btn" onclick="submitData()">GENERUJ PDF</button>
+    <button type="button" class="btn" onclick="window.print()">GENERUJ PDF</button>
 </div>
 
 <div id="sheet">
@@ -199,8 +192,6 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwg3vwbtlGwCU-nMHf07N3KxDhqEQBeD8Kq-GtrG2s0E1jVJqGu6g53vYBGLuwIYqJF/exec';
-
     let currentVat = 1.08;
     let vatTextOut = "8% (Robocizna)";
 
@@ -270,6 +261,7 @@
 
         document.getElementById('res_n').innerText = totalNet.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
         
+        // Discount section - pokaż tylko jeśli rabat > 0
         const discountSection = document.getElementById('discount_section');
         if (discountPercent > 0) {
             discountSection.style.display = 'block';
@@ -280,6 +272,7 @@
             discountSection.style.display = 'none';
         }
 
+        // VAT line
         const resVatLine = document.getElementById('res_vat_line');
         if (currentVat === 1.00) {
             resVatLine.style.display = 'none';
@@ -289,79 +282,6 @@
         }
 
         document.getElementById('res_t').innerText = totalBrutto.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
-    }
-
-    function submitData() {
-        const btn = document.getElementById('submitBtn');
-        const alertBox = document.getElementById('alertBox');
-        
-        btn.disabled = true;
-        btn.innerText = 'WYSYŁANIE...';
-        alertBox.className = 'alert';
-        alertBox.innerText = '';
-
-        // Zbierz dane
-        const qs = document.querySelectorAll('.v-q');
-        const ps = document.querySelectorAll('.v-p');
-        let totalNet = 0;
-        let services = [];
-
-        qs.forEach((q, i) => {
-            const qty = parseFloat(q.value) || 0;
-            const prc = parseFloat(ps[i].value) || 0;
-            if (qty > 0) {
-                const net = qty * prc;
-                totalNet += net;
-                services.push(`${q.dataset.id} (${qty} ${q.dataset.u} x ${prc} zł)`);
-            }
-        });
-
-        const discountPercent = parseFloat(document.getElementById('c_discount').value) || 0;
-        const discountAmount = (totalNet * discountPercent) / 100;
-        const netAfterDiscount = totalNet - discountAmount;
-        const totalBrutto = netAfterDiscount * currentVat;
-        const vatAmount = totalBrutto - netAfterDiscount;
-
-        const now = new Date();
-        const date = now.toLocaleDateString('pl-PL');
-        const time = now.toLocaleTimeString('pl-PL');
-
-        const dataToSend = {
-            date: date,
-            time: time,
-            client: document.getElementById('c_name').value || 'Brak',
-            location: document.getElementById('c_city').value || 'Brak',
-            services: services.join(' | ') || 'Brak',
-            netto: totalNet.toFixed(2),
-            discount: discountPercent.toFixed(2),
-            nettoAfter: netAfterDiscount.toFixed(2),
-            vat: vatAmount.toFixed(2),
-            total: totalBrutto.toFixed(2)
-        };
-
-        // Pokaż komunikat sukcesu od razu
-        alertBox.className = 'alert success';
-        alertBox.innerText = '✅ Przygotowuję PDF do wydruku...';
-
-        // Otwórz print NATYCHMIAST
-        setTimeout(() => {
-            window.print();
-            btn.disabled = false;
-            btn.innerText = 'GENERUJ PDF';
-        }, 500);
-
-        // Wysyłaj do Google Sheet w tle (nie czekaj na odpowiedź)
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(dataToSend),
-            mode: 'no-cors'
-        })
-        .then(() => {
-            console.log('✅ Dane wysłane do Google Sheet');
-        })
-        .catch(error => {
-            console.error('Błąd wysyłania:', error);
-        });
     }
 </script>
 </body>

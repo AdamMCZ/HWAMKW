@@ -1,336 +1,986 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wycena Inwestycji - HOME WALL & MORE</title>
-    <style>
-        :root { --b: #000; --w: #fff; --g: #f4f4f4; --accent: #2ecc71; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #eee; margin: 0; padding: 10px; color: #1a1a1a; -webkit-font-smoothing: antialiased; }
-        
-        @media print {
-            @page { margin: 0; }
-            body { margin: 1.2cm; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .no-print { display: none !important; }
-            #sheet { border: none !important; margin: 0 !important; width: 100% !important; box-shadow: none !important; display: block !important; }
-            tr { page-break-inside: avoid; }
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-        .no-print { max-width: 600px; margin: 0 auto 20px auto; background: var(--w); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid var(--b); }
-        h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #555; margin: 20px 0 10px 0; border-left: 3px solid #000; padding-left: 8px; }
-        
-        input[type="text"], input[type="number"], textarea { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; font-family: inherit; -webkit-appearance: none; background-color: #fff; }
-        
-        .vat-selector { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
-        .vat-btn { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; font-weight: bold; -webkit-appearance: none; text-align: center; min-width: 30%; }
-        .vat-btn.active { background: var(--b); color: #fff; border-color: var(--b); }
+  <title>Wycena Inwestycji - HOME WALL & MORE</title>
 
-        .scroll-list { background: var(--g); padding: 5px; border-radius: 8px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; -webkit-overflow-scrolling: touch; }
-        
-        .category-title { background: #e0e0e0; padding: 8px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-top: 5px; border-radius: 4px; color: #333; position: sticky; top: 0; z-index: 5; }
-        .item { display: flex; flex-direction: column; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; margin: 0; background: #fff; }
-        .item:last-child { border-bottom: none; }
-        .item-row { display: flex; align-items: center; }
-        .item input[type="checkbox"] { width: 24px; height: 24px; margin-right: 15px; accent-color: var(--b); flex-shrink: 0; }
-        .item span { font-size: 14px; font-weight: bold; }
-        .item small { font-size: 10px; color: #666; margin-left: 39px; margin-top: 2px; }
+  <!-- Biblioteka do generowania PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-        .qty-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 5px solid #000; }
-        .qty-card b { display: block; margin-bottom: 10px; font-size: 13px; }
-        .row { display: flex; gap: 10px; }
-        .row div { flex: 1; }
-        .row label { font-size: 10px; text-transform: uppercase; color: #777; font-weight: bold; display: block; margin-bottom: 4px; }
+  <style>
+    :root {
+      --b: #000;
+      --w: #fff;
+      --g: #f4f4f4;
+      --muted: #666;
+      --warning: #ff9800;
+      --danger: #d32f2f;
+    }
 
-        .discount-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 5px solid #ff9800; }
-        .discount-card b { display: block; margin-bottom: 10px; font-size: 13px; color: #ff9800; font-weight: bold; }
-        .discount-card label { font-size: 10px; text-transform: uppercase; color: #777; font-weight: bold; display: block; margin-bottom: 4px; }
-        .discount-card input { width: 100%; }
-        .discount-card-helper { font-size: 11px; color: #999; margin-top: 8px; }
+    * {
+      box-sizing: border-box;
+    }
 
-        .btn { background: #000; color: #fff; border: none; width: 100%; padding: 18px; font-weight: bold; font-size: 14px; letter-spacing: 2px; border-radius: 6px; margin-top: 20px; text-transform: uppercase; cursor: pointer; -webkit-appearance: none; text-align: center; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #eee;
+      margin: 0;
+      padding: 10px;
+      color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        #sheet { width: 100%; max-width: 800px; margin: 20px auto; background: var(--w); padding: 40px 30px; box-sizing: border-box; border: 1px solid #ddd; }
-        .header-txt { text-align: center; margin-bottom: 25px; }
-        .header-txt h1 { font-size: 26px; letter-spacing: 5px; margin: 0; text-transform: uppercase; font-weight: 900; }
-        .header-txt p { font-size: 11px; letter-spacing: 2px; margin: 5px 0 0 0; color: #555; }
-        .line { width: 100%; border-bottom: 2px solid #000; margin: 15px 0; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #000; color: #fff; font-size: 9px; text-transform: uppercase; padding: 10px 2px; border: 1px solid #000; }
-        td { border: 1px solid #eee; padding: 10px 4px; font-size: 11px; text-align: center; }
-        
-        .sum-box { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-end; }
-        .total-row { background: #000; color: #fff; padding: 15px; width: 100%; max-width: 350px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .discount-section { margin-top: 15px; padding: 10px 0; border-top: 1px solid #ddd; width: 100%; max-width: 350px; margin-left: auto; }
-        .discount-line { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin: 5px 0; padding: 0 15px; }
-        .discount-amount { color: #d32f2f; font-weight: bold; }
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
 
-        .notes-box { margin-top: 20px; border: 1px solid #eee; padding: 10px; font-size: 11px; min-height: 40px; white-space: pre-wrap; text-align: left; }
-    </style>
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      #sheet {
+        border: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+
+      tr,
+      .total-row,
+      .notes-box {
+        page-break-inside: avoid;
+      }
+    }
+
+    .no-print {
+      max-width: 650px;
+      margin: 0 auto 20px auto;
+      background: var(--w);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-top: 6px solid var(--b);
+    }
+
+    .app-title {
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #555;
+      margin: 20px 0 10px 0;
+      border-left: 3px solid #000;
+      padding-left: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      font-family: inherit;
+      -webkit-appearance: none;
+      background-color: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .vat-selector {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+
+    .vat-btn {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      -webkit-appearance: none;
+      text-align: center;
+      min-width: 30%;
+    }
+
+    .vat-btn.active {
+      background: var(--b);
+      color: #fff;
+      border-color: var(--b);
+    }
+
+    .scroll-list {
+      background: var(--g);
+      padding: 5px;
+      border-radius: 8px;
+      max-height: 430px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-title {
+      background: #e0e0e0;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 6px;
+      border-radius: 4px;
+      color: #333;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      margin: 0;
+      background: #fff;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+    }
+
+    .item input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      margin-right: 15px;
+      accent-color: var(--b);
+      flex-shrink: 0;
+    }
+
+    .item span {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .item small {
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: 39px;
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    .qty-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border-left: 5px solid #000;
+    }
+
+    .qty-card b {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row div {
+      flex: 1;
+    }
+
+    .row label,
+    .discount-card label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #777;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .discount-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border-left: 5px solid var(--warning);
+    }
+
+    .discount-card b {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--warning);
+      font-weight: bold;
+    }
+
+    .discount-card-helper {
+      font-size: 11px;
+      color: #999;
+      margin-top: 8px;
+    }
+
+    .btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      width: 100%;
+      padding: 18px;
+      font-weight: bold;
+      font-size: 14px;
+      letter-spacing: 2px;
+      border-radius: 6px;
+      margin-top: 20px;
+      text-transform: uppercase;
+      cursor: pointer;
+      -webkit-appearance: none;
+      text-align: center;
+    }
+
+    .btn-secondary {
+      background: #333;
+      margin-top: 10px;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    #sheet {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: var(--w);
+      padding: 40px 30px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+
+    #sheet.pdf-export {
+      width: 760px !important;
+      max-width: 760px !important;
+      min-width: 760px !important;
+      padding: 40px 30px !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+      border: 1px solid #ddd !important;
+    }
+
+    .header-txt {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header-txt h1 {
+      font-size: 26px;
+      letter-spacing: 5px;
+      margin: 0;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .header-txt p {
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin: 5px 0 0 0;
+      color: #555;
+    }
+
+    .line {
+      width: 100%;
+      border-bottom: 2px solid #000;
+      margin: 15px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      table-layout: fixed;
+    }
+
+    th {
+      background: #000;
+      color: #fff;
+      font-size: 9px;
+      text-transform: uppercase;
+      padding: 10px 3px;
+      border: 1px solid #000;
+    }
+
+    td {
+      border: 1px solid #eee;
+      padding: 10px 4px;
+      font-size: 11px;
+      text-align: center;
+      word-break: break-word;
+      vertical-align: top;
+    }
+
+    .sum-box {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .total-row {
+      background: #000;
+      color: #fff;
+      padding: 15px;
+      width: 100%;
+      max-width: 350px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .discount-section {
+      margin-top: 15px;
+      padding: 10px 0;
+      border-top: 1px solid #ddd;
+      width: 100%;
+      max-width: 350px;
+      margin-left: auto;
+    }
+
+    .discount-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: #666;
+      margin: 5px 0;
+      padding: 0 15px;
+    }
+
+    .discount-amount {
+      color: var(--danger);
+      font-weight: bold;
+    }
+
+    .notes-box {
+      margin-top: 20px;
+      border: 1px solid #eee;
+      padding: 10px;
+      font-size: 11px;
+      min-height: 40px;
+      white-space: pre-wrap;
+      text-align: left;
+    }
+
+    .empty-row td {
+      color: #888;
+      font-style: italic;
+      text-align: center !important;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
+      }
+
+      .no-print {
+        padding: 16px;
+      }
+
+      .row {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      #sheet {
+        padding: 24px 12px;
+        margin-top: 14px;
+      }
+
+      .header-txt h1 {
+        font-size: 20px;
+        letter-spacing: 3px;
+      }
+
+      .header-txt p {
+        font-size: 9px;
+        letter-spacing: 1px;
+      }
+
+      th {
+        font-size: 8px;
+      }
+
+      td {
+        font-size: 10px;
+      }
+
+      .total-row,
+      .discount-section {
+        max-width: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="no-print">
-    <div style="text-align: center; font-weight: 900; letter-spacing: 2px;">🏠 HOME WALL & MORE - SYSTEM</div>
-    
+  <div class="no-print">
+    <div class="app-title">HOME WALL & MORE - SYSTEM</div>
+
     <h2>1. Dane Inwestycji</h2>
-    <input type="text" id="c_name" placeholder="Imię i Nazwisko Klienta" oninput="upd()" autocomplete="off">
-    <input type="text" id="c_city" placeholder="Lokalizacja Inwestycji" oninput="upd()" autocomplete="off">
-    
+    <input type="text" id="c_name" placeholder="Imię i Nazwisko Klienta" autocomplete="off">
+    <input type="text" id="c_city" placeholder="Lokalizacja Inwestycji" autocomplete="off">
+
     <div class="vat-selector">
-        <button type="button" class="vat-btn" id="btn0" onclick="setVat(1.00, this, 'ZW / Ryczałt')">0% (Ryczałt)</button>
-        <button type="button" class="vat-btn active" id="btn8" onclick="setVat(1.08, this, '8%')">8% (Robocizna)</button>
-        <button type="button" class="vat-btn" id="btn23" onclick="setVat(1.23, this, '23%')">23% (Firma)</button>
+      <button type="button" class="vat-btn" data-vat="1.00" data-label="ZW / Ryczałt">0% (Ryczałt)</button>
+      <button type="button" class="vat-btn active" data-vat="1.08" data-label="8% (Robocizna)">8% (Robocizna)</button>
+      <button type="button" class="vat-btn" data-vat="1.23" data-label="23% (Firma)">23% (Firma)</button>
     </div>
 
     <h2>2. Wybór Zakresu Prac</h2>
-    <div class="scroll-list">
-        <div class="category-title">Zabudowa G-K</div>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Ścianki działowe G-K" data-p="120" data-u="m2" onchange="build()">
-<span>Ścianki działowe G-K</span>
-</div><small>Konstrukcja + płyty + szpachlowanie</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Sufit podwieszany G-K" data-p="140" data-u="m2" onchange="build()">
-<span>Sufit podwieszany G-K</span>
-</div><small>Stelaż + płyty + obróbka</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Zabudowa poddasza G-K" data-p="180" data-u="m2" onchange="build()">
-<span>Zabudowa poddasza</span>
-</div><small>Skosy + izolacja + płyty</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Zabudowy dekoracyjne G-K" data-p="250" data-u="m2" onchange="build()">
-<span>Zabudowy dekoracyjne</span>
-</div><small>Półki, wnęki, zabudowy TV</small></label>
-        
-        <div class="category-title">Remont i malowanie ścian</div>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Przygotowanie ścian do malowania" data-p="12" data-u="m2" onchange="build()"> <span>Przygotowanie ścian</span></div><small>Usunięcie uszkodzeń, naprawienie ubytków.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Prostowanie ścian" data-p="50" data-u="m2" onchange="build()"> <span>Prostowanie ścian</span></div><small>prostowanie ścian żeby uzyskać pion.</small></label>
- 
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Gruntowanie ścian i sufitów" data-p="12" data-u="m2" onchange="build()"> <span>Gruntowanie ścian i sufitów</span></div><small>Gruntowanie</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Malowanie ścian i sufitów (3x)" data-p="30" data-u="m2" onchange="build()"> <span>Malowanie (3x + grunt)</span></div><small>Trzykrotne malowanie wraz z gruntowaniem.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Malowanie białe (2x + grunt)" data-p="22" data-u="m2" onchange="build()"> <span>Malowanie białe</span></div><small>Dwukrotne malowanie białą farbą z gruntowaniem.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Zrywanie tapet" data-p="28" data-u="m2" onchange="build()"> <span>Zrywanie tapet</span></div><small>Tapety winylowe, normalny stopień trudności.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Skuwanie starych płytek" data-p="75" data-u="m2" onchange="build()"> <span>Skuwanie starych płytek</span></div><small>Płytki na ścianach lub podłodze.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Tapetowanie" data-p="50" data-u="m2" onchange="build()"> <span>Tapetowanie</span></div><small>Tapeta winylowa, normalny stopień trudności.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Malowanie drzwi" data-p="365" data-u="szt" onchange="build()"> <span>Malowanie drzwi</span></div><small>Dwustronne</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Malowanie grzejnika" data-p="30" data-u="żeb." onchange="build()"> <span>Malowanie grzejnika</span></div><small>Przygotowanie i malowanie.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Tynk gipsowy" data-p="44" data-u="m2" onchange="build()"> <span>Tynk gipsowy</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Tynk cementowo-wapienny" data-p="45" data-u="m2" onchange="build()"> <span>Tynk cementowo-wapienny</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Gipsowanie ścian" data-p="55" data-u="m2" onchange="build()"> <span>Gipsowanie ścian</span></div><small>gipsowanie ścian i sufitów.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Układanie płytek na ścianie (std)" data-p="135" data-u="m2" onchange="build()"> <span>Płytki ścienne standard</span></div><small>Format standardowy.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Układanie płytek na ścianie (niestd)" data-p="175" data-u="m2" onchange="build()"> <span>Płytki ścienne niestandard</span></div><small>Duży format lub wyższy stopień skomplikowania.</small></label>
-
-        <div class="category-title">Remonty podłóg</div>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Skuwanie płytek podłogowych" data-p="70" data-u="m2" onchange="build()"> <span>Skuwanie płytek podłogowych</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Wylewka samopoziomująca" data-p="77" data-u="m2" onchange="build()"> <span>Wylewka samopoziomująca</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Demontaż paneli podłogowych" data-p="25" data-u="m2" onchange="build()"> <span>Demontaż paneli (pływające)</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Demontaż paneli klejonych" data-p="33" data-u="m2" onchange="build()"> <span>Demontaż paneli klejonych</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż wykładziny PCV" data-p="57" data-u="m2" onchange="build()"> <span>Montaż wykładziny PCV</span></div><small>Na wyrównanym podłożu</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż paneli podłogowych" data-p="77" data-u="m2" onchange="build()"> <span>Montaż paneli podłogowych</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Układanie parkietu" data-p="130" data-u="m2" onchange="build()"> <span>Układanie parkietu</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Gruntowanie posadzki" data-p="13" data-u="m2" onchange="build()"> <span>Gruntowanie posadzki</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Układanie płytek podłogowych (std)" data-p="130" data-u="m2" onchange="build()"> <span>Płytki podłogowe standard</span></div><small>Format standardowy.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Układanie płytek podłogowych (niestd)" data-p="165" data-u="m2" onchange="build()"> <span>Płytki podłogowe niestandard</span></div><small>Duży format lub wyższy stopień skomplikowania.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Układanie mozaiki" data-p="300" data-u="m2" onchange="build()"> <span>Układanie mozaiki</span></div><small></small></label>
-
-        <div class="category-title">Usługi hydrauliczne</div>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Punkt hydrauliczny" data-p="1050" data-u="pkt" onchange="build()"> <span>Wykonanie punktu hydraulicznego</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż zaworów" data-p="70" data-u="szt" onchange="build()"> <span>Montaż zaworów</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż baterii wannowej" data-p="235" data-u="szt" onchange="build()"> <span>Montaż baterii wannowej</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż wanny" data-p="500" data-u="szt" onchange="build()"> <span>Montaż wanny</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Demontaż wanny" data-p="200" data-u="szt" onchange="build()"> <span>Demontaż wanny</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż grzejnika" data-p="375" data-u="szt" onchange="build()"> <span>Montaż grzejnika</span></div><small> .</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż umywalki" data-p="375" data-u="szt" onchange="build()"> <span>Montaż umywalki</span></div><small> .</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż WC" data-p="250" data-u="szt" onchange="build()"> <span>Montaż WC</span></div><small>WC ze zbiornikiem zewnętrznym.</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż kabiny prysznicowej" data-p="900" data-u="szt" onchange="build()"> <span>Montaż kabiny prysznicowej</span></div><small> .</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż WC podwieszanego" data-p="550" data-u="szt" onchange="build()"> <span>WC podwieszane ze stelażem</span></div><small>Zabudowa stelaża i montaz</small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Montaż bidetu" data-p="375" data-u="szt" onchange="build()"> <span>Montaż bidetu</span></div><small></small></label>
-        <label class="item"><div class="item-row"><input type="checkbox" data-n="Ogrzewanie podłogowe" data-p="330" data-u="m2" onchange="build()"> <span>Ogrzewanie podłogowe</span></div><small></small></label>
-   
-    <label class="item"><div class="item-row">
-<input type="checkbox" data-n="Hydroizolacja" data-p="45" data-u="m2" onchange="build()">
-<span>Hydroizolacja</span>
-</div><small>Zabezpieczenie przeciwwilgociowe podłoża</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Przygotowanie pod kapinos" data-p="35" data-u="mb" onchange="build()">
-<span>Przygotowanie pod kapinos</span>
-</div><small>Frezowanie i wyrównanie krawędzi okapowych</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Przygotowanie posadzki" data-p="25" data-u="m2" onchange="build()">
-<span>Przygotowanie posadzki</span>
-</div><small>Szlifowanie, czyszczenie i gruntowanie</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Położenie dywanu kamiennego" data-p="180" data-u="m2" onchange="build()">
-<span>Położenie dywanu kamiennego</span>
-</div><small>Warstwa żywiczno-kruszywowa</small></label>
-
-<label class="item"><div class="item-row">
-<input type="checkbox" data-n="Położenie cokołów" data-p="50" data-u="mb" onchange="build()">
-<span>Położenie cokołów</span>
-</div><small>Wykończenie pionowe z docięciem</small></label>
-    
-    </div>
+    <div class="scroll-list" id="servicesList"></div>
 
     <div id="input-fields"></div>
 
     <div class="discount-card">
-        <b>💰 Rabat dla klienta</b>
-        <label>Procent rabatu (%)</label>
-        <input type="number" id="c_discount" min="0" max="100" step="0.01" placeholder="0" oninput="upd()" autocomplete="off">
-        <div class="discount-card-helper">Zostaw puste lub 0 aby ukryć w kosztorysie</div>
+      <b>Rabat dla klienta</b>
+      <label for="c_discount">Procent rabatu (%)</label>
+      <input type="number" id="c_discount" min="0" max="100" step="0.01" placeholder="0" autocomplete="off">
+      <div class="discount-card-helper">Zostaw puste lub 0, aby ukryć rabat w kosztorysie.</div>
     </div>
 
     <h2>4. Uwagi / Warunki</h2>
-    <textarea id="c_notes" rows="4" placeholder="Np. Oferta nie zawiera materiału. Termin rozpoczęcia: ..." oninput="upd()"></textarea>
+    <textarea id="c_notes" rows="4" placeholder="Np. Oferta nie zawiera materiału. Termin rozpoczęcia: ..."></textarea>
 
-    <button type="button" class="btn" onclick="window.print()">GENERUJ PDF</button>
-</div>
+    <button type="button" class="btn" id="pdfBtn">GENERUJ PDF</button>
+    <button type="button" class="btn btn-secondary" id="printBtn">DRUKUJ / ZAPISZ PRZEZ SYSTEM</button>
+  </div>
 
-<div id="sheet">
+  <div id="sheet">
     <div class="header-txt">
-        <h1>HOME WALL & MORE</h1>
-        <p>GENERALNE WYKONAWSTWO • NADZÓR TECHNICZNY • WYKOŃCZENIA</p>
+      <h1>HOME WALL & MORE</h1>
+      <p>GENERALNE WYKONAWSTWO • NADZÓR TECHNICZNY • WYKOŃCZENIA</p>
     </div>
+
     <div class="line"></div>
-    <div style="text-align:center; text-transform:uppercase; font-weight:900; letter-spacing:3px;">Wycena Realizacji Inwestycji</div>
+
+    <div style="text-align:center; text-transform:uppercase; font-weight:900; letter-spacing:3px;">
+      Wycena Realizacji Inwestycji
+    </div>
+
     <div id="date_val" style="text-align:center; font-size:10px; margin-top:5px;"></div>
+
     <div class="line"></div>
 
     <div style="font-size: 11px; margin-bottom: 20px;">
-        <strong>INWESTOR:</strong> <span id="out_n">..........</span><br>
-        <strong>LOKALIZACJA:</strong> <span id="out_c">..........</span><br>
-        <strong>SYSTEM ROZLICZENIA:</strong> <span id="out_v">8% (Robocizna)</span>
+      <strong>INWESTOR:</strong> <span id="out_n">..........</span><br>
+      <strong>LOKALIZACJA:</strong> <span id="out_c">..........</span><br>
+      <strong>SYSTEM ROZLICZENIA:</strong> <span id="out_v">8% (Robocizna)</span>
     </div>
 
     <table>
-        <thead>
-            <tr>
-                <th style="width:45%">ZAKRES PRAC</th>
-                <th>CENA JEDN.</th>
-                <th>ILOŚĆ</th>
-                <th>WARTOŚĆ</th>
-            </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
+      <thead>
+        <tr>
+          <th style="width:45%">ZAKRES PRAC</th>
+          <th style="width:18%">CENA JEDN.</th>
+          <th style="width:17%">ILOŚĆ</th>
+          <th style="width:20%">WARTOŚĆ</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
     </table>
 
     <div id="out_notes" class="notes-box" style="display:none;"></div>
 
     <div class="sum-box">
-        <div style="color:#888; font-size:12px; margin-bottom:5px;">Netto: <span id="res_n">0.00 zł</span></div>
-        <div id="discount_section" class="discount-section" style="display:none;">
-            <div class="discount-line">Rabat <span id="discount_percent">0</span>%: <span class="discount-amount" id="res_discount">-0.00 zł</span></div>
-            <div class="discount-line">Netto po rabacie: <span id="res_net_after">0.00 zł</span></div>
-        </div>
-        <div style="color:#888; font-size:12px; margin-bottom:5px;" id="res_vat_line">VAT: <span id="res_vat">0.00 zł</span></div>
-        <div class="total-row">
-            <span style="font-weight:bold; font-size:12px;">SUMA DO ZAPŁATY:</span>
-            <span id="res_t" style="font-weight:900; font-size:20px;">0.00 zł</span>
-        </div>
-    </div>
-</div>
+      <div style="color:#888; font-size:12px; margin-bottom:5px;">
+        Netto: <span id="res_n">0.00 zł</span>
+      </div>
 
-<script>
+      <div id="discount_section" class="discount-section" style="display:none;">
+        <div class="discount-line">
+          Rabat <span><span id="discount_percent">0</span>%: <span class="discount-amount" id="res_discount">-0.00 zł</span></span>
+        </div>
+        <div class="discount-line">
+          Netto po rabacie: <span id="res_net_after">0.00 zł</span>
+        </div>
+      </div>
+
+      <div style="color:#888; font-size:12px; margin-bottom:5px;" id="res_vat_line">
+        VAT: <span id="res_vat">0.00 zł</span>
+      </div>
+
+      <div class="total-row">
+        <span style="font-weight:bold; font-size:12px;">SUMA DO ZAPŁATY:</span>
+        <span id="res_t" style="font-weight:900; font-size:20px;">0.00 zł</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const services = [
+      {
+        category: "Zabudowa G-K",
+        items: [
+          { n: "Ścianki działowe G-K", p: 120, u: "m2", d: "Konstrukcja + płyty + szpachlowanie" },
+          { n: "Sufit podwieszany G-K", p: 140, u: "m2", d: "Stelaż + płyty + obróbka" },
+          { n: "Zabudowa poddasza G-K", p: 180, u: "m2", d: "Skosy + izolacja + płyty" },
+          { n: "Zabudowy dekoracyjne G-K", p: 250, u: "m2", d: "Półki, wnęki, zabudowy TV" }
+        ]
+      },
+      {
+        category: "Remont i malowanie ścian",
+        items: [
+          { n: "Przygotowanie ścian do malowania", p: 12, u: "m2", d: "Usunięcie uszkodzeń, naprawienie ubytków" },
+          { n: "Prostowanie ścian", p: 50, u: "m2", d: "Prostowanie ścian w celu uzyskania pionu" },
+          { n: "Gruntowanie ścian i sufitów", p: 12, u: "m2", d: "Gruntowanie powierzchni" },
+          { n: "Malowanie ścian i sufitów (3x)", p: 30, u: "m2", d: "Trzykrotne malowanie wraz z gruntowaniem" },
+          { n: "Malowanie białe (2x + grunt)", p: 22, u: "m2", d: "Dwukrotne malowanie białą farbą z gruntowaniem" },
+          { n: "Zrywanie tapet", p: 28, u: "m2", d: "Tapety winylowe, normalny stopień trudności" },
+          { n: "Tapetowanie", p: 50, u: "m2", d: "Tapeta winylowa, normalny stopień trudności" },
+          { n: "Malowanie drzwi", p: 365, u: "szt", d: "Dwustronne malowanie drzwi" },
+          { n: "Malowanie ram okiennych", p: 150, u: "szt", d: "Przygotowanie i malowanie ram okiennych" },
+          { n: "Malowanie grzejnika", p: 30, u: "żeb.", d: "Przygotowanie i malowanie grzejnika" },
+          { n: "Tynk gipsowy", p: 44, u: "m2", d: "" },
+          { n: "Tynk cementowo-wapienny", p: 45, u: "m2", d: "" },
+          { n: "Gipsowanie ścian", p: 55, u: "m2", d: "Gipsowanie ścian i sufitów" }
+        ]
+      },
+      {
+        category: "Płytki i prace glazurnicze",
+        items: [
+          { n: "Skuwanie starych płytek", p: 75, u: "m2", d: "Płytki na ścianach lub podłodze" },
+          { n: "Układanie płytek na ścianie (standard)", p: 135, u: "m2", d: "Format standardowy" },
+          { n: "Układanie płytek na ścianie (niestandard)", p: 175, u: "m2", d: "Duży format lub wyższy stopień skomplikowania" },
+          { n: "Układanie płytek podłogowych (standard)", p: 130, u: "m2", d: "Format standardowy" },
+          { n: "Układanie płytek podłogowych (niestandard)", p: 165, u: "m2", d: "Duży format lub wyższy stopień skomplikowania" },
+          { n: "Układanie mozaiki", p: 300, u: "m2", d: "" }
+        ]
+      },
+      {
+        category: "Remonty podłóg",
+        items: [
+          { n: "Skuwanie płytek podłogowych", p: 70, u: "m2", d: "" },
+          { n: "Wylewka samopoziomująca", p: 77, u: "m2", d: "" },
+          { n: "Demontaż paneli podłogowych", p: 25, u: "m2", d: "Panele pływające" },
+          { n: "Demontaż paneli klejonych", p: 33, u: "m2", d: "" },
+          { n: "Montaż wykładziny PCV", p: 57, u: "m2", d: "Na wyrównanym podłożu" },
+          { n: "Montaż paneli podłogowych", p: 77, u: "m2", d: "" },
+          { n: "Układanie parkietu", p: 130, u: "m2", d: "" },
+          { n: "Gruntowanie posadzki", p: 13, u: "m2", d: "" }
+        ]
+      },
+      {
+        category: "Usługi hydrauliczne",
+        items: [
+          { n: "Punkt hydrauliczny", p: 1050, u: "pkt", d: "Wykonanie punktu hydraulicznego" },
+          { n: "Montaż zaworów", p: 70, u: "szt", d: "" },
+          { n: "Montaż baterii wannowej", p: 235, u: "szt", d: "" },
+          { n: "Montaż wanny", p: 500, u: "szt", d: "" },
+          { n: "Demontaż wanny", p: 200, u: "szt", d: "" },
+          { n: "Montaż grzejnika", p: 375, u: "szt", d: "" },
+          { n: "Montaż umywalki", p: 375, u: "szt", d: "" },
+          { n: "Montaż WC", p: 250, u: "szt", d: "WC ze zbiornikiem zewnętrznym" },
+          { n: "Montaż kabiny prysznicowej", p: 900, u: "szt", d: "" },
+          { n: "Montaż WC podwieszanego", p: 550, u: "szt", d: "Zabudowa stelaża i montaż" },
+          { n: "Montaż bidetu", p: 375, u: "szt", d: "" },
+          { n: "Ogrzewanie podłogowe", p: 330, u: "m2", d: "" }
+        ]
+      },
+      {
+        category: "Stolarka i montaż drzwi",
+        items: [
+          { n: "Montaż drzwi wewnętrznych", p: 450, u: "szt", d: "Montaż skrzydła z ościeżnicą, bez materiału" },
+          { n: "Montaż drzwi zewnętrznych", p: 900, u: "szt", d: "Montaż drzwi zewnętrznych, bez materiału" }
+        ]
+      },
+      {
+        category: "Tarasy / balkony / dywan kamienny",
+        items: [
+          { n: "Hydroizolacja", p: 45, u: "m2", d: "Zabezpieczenie przeciwwilgociowe podłoża" },
+          { n: "Przygotowanie pod kapinos", p: 35, u: "mb", d: "Frezowanie i wyrównanie krawędzi okapowych" },
+          { n: "Przygotowanie posadzki", p: 25, u: "m2", d: "Szlifowanie, czyszczenie i gruntowanie" },
+          { n: "Położenie dywanu kamiennego", p: 180, u: "m2", d: "Warstwa żywiczno-kruszywowa" },
+          { n: "Położenie cokołów", p: 50, u: "mb", d: "Wykończenie pionowe z docięciem" }
+        ]
+      },
+      {
+        category: "Prace dodatkowe",
+        items: [
+          { n: "Prace dodatkowe", p: 90, u: "r-g", d: "Roboczogodzina prac niewyszczególnionych w kosztorysie" },
+          { n: "Obklejanie / zabezpieczenie powierzchni", p: 15, u: "m2", d: "Obklejanie i zabezpieczenie powierzchni przed pracami" }
+        ]
+      }
+    ];
+
     let currentVat = 1.08;
     let vatTextOut = "8% (Robocizna)";
 
-    function setVat(val, btn, textVal) {
-        currentVat = val;
-        vatTextOut = textVal;
-        document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('out_v').innerText = vatTextOut;
-        upd();
+    const PLN_FORMAT = new Intl.NumberFormat("pl-PL", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    function money(value) {
+      return PLN_FORMAT.format(Number(value) || 0) + " zł";
+    }
+
+    function serviceKey(name) {
+      return encodeURIComponent(name);
+    }
+
+    function cleanNumber(value) {
+      return parseFloat(String(value || "").replace(",", ".")) || 0;
+    }
+
+    function renderServices() {
+      const list = document.getElementById("servicesList");
+      list.innerHTML = "";
+
+      services.forEach(group => {
+        const category = document.createElement("div");
+        category.className = "category-title";
+        category.textContent = group.category;
+        list.appendChild(category);
+
+        group.items.forEach(item => {
+          const label = document.createElement("label");
+          label.className = "item";
+
+          const row = document.createElement("div");
+          row.className = "item-row";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.dataset.n = item.n;
+          checkbox.dataset.p = item.p;
+          checkbox.dataset.u = item.u;
+          checkbox.addEventListener("change", build);
+
+          const span = document.createElement("span");
+          span.textContent = item.n;
+
+          const small = document.createElement("small");
+          small.textContent = item.d || " ";
+
+          row.appendChild(checkbox);
+          row.appendChild(span);
+          label.appendChild(row);
+          label.appendChild(small);
+
+          list.appendChild(label);
+        });
+      });
+    }
+
+    function setVat(value, button, label) {
+      currentVat = Number(value);
+      vatTextOut = label;
+
+      document.querySelectorAll(".vat-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      button.classList.add("active");
+      document.getElementById("out_v").innerText = vatTextOut;
+
+      upd();
     }
 
     function build() {
-        const wrap = document.getElementById('input-fields');
-        const active = document.querySelectorAll('.item input:checked');
-        const qStore = {}; document.querySelectorAll('.v-q').forEach(i => qStore[i.dataset.id] = i.value);
-        const pStore = {}; document.querySelectorAll('.v-p').forEach(i => pStore[i.dataset.id] = i.value);
+      const wrap = document.getElementById("input-fields");
+      const active = document.querySelectorAll(".item input[type='checkbox']:checked");
 
-        wrap.innerHTML = '';
-        if(active.length > 0) wrap.innerHTML = '<h2>3. Ilości i Ceny</h2>';
-        
-        active.forEach(box => {
-            const n = box.dataset.n;
-            wrap.innerHTML += `
-                <div class="qty-card">
-                    <b>${n}</b>
-                    <div class="row">
-                        <div><label>Ilość (${box.dataset.u})</label><input type="number" step="any" class="v-q" data-id="${n}" data-u="${box.dataset.u}" value="${qStore[n] || ''}" oninput="upd()"></div>
-                        <div><label>Cena netto zł</label><input type="number" step="any" class="v-p" data-id="${n}" value="${pStore[n] || box.dataset.p}" oninput="upd()"></div>
-                    </div>
-                </div>`;
-        });
-        upd();
+      const qStore = {};
+      const pStore = {};
+
+      document.querySelectorAll(".v-q").forEach(input => {
+        qStore[input.dataset.key] = input.value;
+      });
+
+      document.querySelectorAll(".v-p").forEach(input => {
+        pStore[input.dataset.key] = input.value;
+      });
+
+      wrap.innerHTML = "";
+
+      if (active.length > 0) {
+        const title = document.createElement("h2");
+        title.textContent = "3. Ilości i Ceny";
+        wrap.appendChild(title);
+      }
+
+      active.forEach(box => {
+        const n = box.dataset.n;
+        const u = box.dataset.u;
+        const p = box.dataset.p;
+        const key = serviceKey(n);
+
+        const card = document.createElement("div");
+        card.className = "qty-card";
+
+        const name = document.createElement("b");
+        name.textContent = n;
+        card.appendChild(name);
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const qtyWrap = document.createElement("div");
+        const qtyLabel = document.createElement("label");
+        qtyLabel.textContent = "Ilość (" + u + ")";
+
+        const qtyInput = document.createElement("input");
+        qtyInput.type = "number";
+        qtyInput.step = "any";
+        qtyInput.className = "v-q";
+        qtyInput.dataset.id = n;
+        qtyInput.dataset.key = key;
+        qtyInput.dataset.u = u;
+        qtyInput.value = qStore[key] || "";
+        qtyInput.addEventListener("input", upd);
+
+        qtyWrap.appendChild(qtyLabel);
+        qtyWrap.appendChild(qtyInput);
+
+        const priceWrap = document.createElement("div");
+        const priceLabel = document.createElement("label");
+        priceLabel.textContent = "Cena netto zł";
+
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.step = "any";
+        priceInput.className = "v-p";
+        priceInput.dataset.id = n;
+        priceInput.dataset.key = key;
+        priceInput.value = pStore[key] || p;
+        priceInput.addEventListener("input", upd);
+
+        priceWrap.appendChild(priceLabel);
+        priceWrap.appendChild(priceInput);
+
+        row.appendChild(qtyWrap);
+        row.appendChild(priceWrap);
+        card.appendChild(row);
+        wrap.appendChild(card);
+      });
+
+      upd();
     }
 
     function upd() {
-        document.getElementById('out_n').innerText = document.getElementById('c_name').value || "..........";
-        document.getElementById('out_c').innerText = document.getElementById('c_city').value || "..........";
-        document.getElementById('date_val').innerText = "Sporządzono: " + new Date().toLocaleDateString('pl-PL');
-        
-        const notes = document.getElementById('c_notes').value;
-        const notesOut = document.getElementById('out_notes');
-        if(notes) { notesOut.style.display = 'block'; notesOut.innerText = "UWAGI I WARUNKI REALIZACJI:\n" + notes; }
-        else { notesOut.style.display = 'none'; }
+      const clientName = document.getElementById("c_name").value.trim();
+      const clientCity = document.getElementById("c_city").value.trim();
+      const notes = document.getElementById("c_notes").value.trim();
 
-        const tb = document.getElementById('tbody');
-        const qs = document.querySelectorAll('.v-q');
-        const ps = document.querySelectorAll('.v-p');
-        tb.innerHTML = '';
-        let totalNet = 0;
+      document.getElementById("out_n").innerText = clientName || "..........";
+      document.getElementById("out_c").innerText = clientCity || "..........";
+      document.getElementById("out_v").innerText = vatTextOut;
+      document.getElementById("date_val").innerText = "Sporządzono: " + new Date().toLocaleDateString("pl-PL");
 
-        qs.forEach((q, i) => {
-            const qty = parseFloat(q.value) || 0;
-            const prc = parseFloat(ps[i].value) || 0;
-            const net = qty * prc;
-            totalNet += net;
-            if (qty > 0) {
-                tb.innerHTML += `<tr><td style="text-align:left; font-weight:bold">${q.dataset.id}</td><td>${prc.toFixed(2)} zł</td><td>${qty} ${q.dataset.u}</td><td>${net.toFixed(2)} zł</td></tr>`;
-            }
-        });
+      const notesOut = document.getElementById("out_notes");
 
-        const discountPercent = parseFloat(document.getElementById('c_discount').value) || 0;
-        const discountAmount = (totalNet * discountPercent) / 100;
-        const netAfterDiscount = totalNet - discountAmount;
-        const totalBrutto = netAfterDiscount * currentVat;
-        const vatAmount = totalBrutto - netAfterDiscount;
+      if (notes) {
+        notesOut.style.display = "block";
+        notesOut.innerText = "UWAGI I WARUNKI REALIZACJI:\n" + notes;
+      } else {
+        notesOut.style.display = "none";
+        notesOut.innerText = "";
+      }
 
-        document.getElementById('res_n').innerText = totalNet.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
-        
-        // Discount section - pokaż tylko jeśli rabat > 0
-        const discountSection = document.getElementById('discount_section');
-        if (discountPercent > 0) {
-            discountSection.style.display = 'block';
-            document.getElementById('discount_percent').innerText = discountPercent.toFixed(2);
-            document.getElementById('res_discount').innerText = '-' + discountAmount.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
-            document.getElementById('res_net_after').innerText = netAfterDiscount.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
-        } else {
-            discountSection.style.display = 'none';
+      const tb = document.getElementById("tbody");
+      const qs = document.querySelectorAll(".v-q");
+      const ps = document.querySelectorAll(".v-p");
+
+      tb.innerHTML = "";
+
+      let totalNet = 0;
+      let rowsCount = 0;
+
+      qs.forEach((q, i) => {
+        const qty = cleanNumber(q.value);
+        const prc = cleanNumber(ps[i].value);
+        const net = qty * prc;
+
+        if (qty > 0) {
+          totalNet += net;
+          rowsCount++;
+
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td style="text-align:left; font-weight:bold">${q.dataset.id}</td>
+            <td>${money(prc)}</td>
+            <td>${PLN_FORMAT.format(qty)} ${q.dataset.u}</td>
+            <td>${money(net)}</td>
+          `;
+
+          tb.appendChild(row);
         }
+      });
 
-        // VAT line
-        const resVatLine = document.getElementById('res_vat_line');
-        if (currentVat === 1.00) {
-            resVatLine.style.display = 'none';
-        } else {
-            resVatLine.style.display = 'block';
-            document.getElementById('res_vat').innerText = vatAmount.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
-        }
+      if (rowsCount === 0) {
+        const empty = document.createElement("tr");
+        empty.className = "empty-row";
+        empty.innerHTML = '<td colspan="4">Brak wybranych pozycji kosztorysu.</td>';
+        tb.appendChild(empty);
+      }
 
-        document.getElementById('res_t').innerText = totalBrutto.toLocaleString('pl-PL', {minimumFractionDigits: 2}) + " zł";
+      let discountPercent = cleanNumber(document.getElementById("c_discount").value);
+      discountPercent = Math.max(0, Math.min(100, discountPercent));
+
+      const discountAmount = totalNet * discountPercent / 100;
+      const netAfterDiscount = totalNet - discountAmount;
+      const totalBrutto = netAfterDiscount * currentVat;
+      const vatAmount = totalBrutto - netAfterDiscount;
+
+      document.getElementById("res_n").innerText = money(totalNet);
+
+      const discountSection = document.getElementById("discount_section");
+
+      if (discountPercent > 0) {
+        discountSection.style.display = "block";
+        document.getElementById("discount_percent").innerText = PLN_FORMAT.format(discountPercent);
+        document.getElementById("res_discount").innerText = "-" + money(discountAmount);
+        document.getElementById("res_net_after").innerText = money(netAfterDiscount);
+      } else {
+        discountSection.style.display = "none";
+      }
+
+      const resVatLine = document.getElementById("res_vat_line");
+
+      if (currentVat === 1.00) {
+        resVatLine.style.display = "none";
+      } else {
+        resVatLine.style.display = "block";
+        document.getElementById("res_vat").innerText = money(vatAmount);
+      }
+
+      document.getElementById("res_t").innerText = money(totalBrutto);
     }
-</script>
+
+    async function generatePDF() {
+      upd();
+
+      const btn = document.getElementById("pdfBtn");
+      const sheet = document.getElementById("sheet");
+
+      const client = document.getElementById("c_name").value.trim()
+        .replace(/[^a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ_-]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "") || "klient";
+
+      const date = new Date().toISOString().slice(0, 10);
+      const filename = `wycena-home-wall-more-${client}-${date}.pdf`;
+
+      if (typeof html2pdf === "undefined") {
+        alert("Biblioteka PDF nie załadowała się. Używam drukowania systemowego.");
+        window.print();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "GENEROWANIE PDF...";
+      sheet.classList.add("pdf-export");
+
+      const options = {
+        margin: [8, 8, 8, 8],
+        filename: filename,
+        image: {
+          type: "jpeg",
+          quality: 0.98
+        },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          backgroundColor: "#ffffff"
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait"
+        },
+        pagebreak: {
+          mode: ["css", "legacy"],
+          avoid: ["tr", ".total-row", ".notes-box"]
+        }
+      };
+
+      try {
+        await html2pdf().set(options).from(sheet).save();
+      } catch (error) {
+        console.error(error);
+        alert("Nie udało się wygenerować PDF. Otwieram tryb drukowania.");
+        window.print();
+      } finally {
+        sheet.classList.remove("pdf-export");
+        btn.disabled = false;
+        btn.innerText = "GENERUJ PDF";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      renderServices();
+      upd();
+
+      document.getElementById("c_name").addEventListener("input", upd);
+      document.getElementById("c_city").addEventListener("input", upd);
+      document.getElementById("c_discount").addEventListener("input", upd);
+      document.getElementById("c_notes").addEventListener("input", upd);
+
+      document.querySelectorAll(".vat-btn").forEach(button => {
+        button.addEventListener("click", function () {
+          setVat(button.dataset.vat, button, button.dataset.label);
+        });
+      });
+
+      document.getElementById("pdfBtn").addEventListener("click", generatePDF);
+
+      document.getElementById("printBtn").addEventListener("click", function () {
+        upd();
+        window.print();
+      });
+    });
+  </script>
+
 </body>
 </html>
